@@ -33,14 +33,16 @@ model User {
   followings             Follower[]        @relation("UserFollowings")
   followRequestsSent     FollowerRequest[] @relation("FollowRequestsSent")
   followRequestsReceived FollowerRequest[] @relation("FollowRequestsReceived")
-  blocksSent             Block[]           @relation("BlocksSent")
-  blockReceived          Block[]           @relation("BlockReceived")
+  blocks                 Block[]         @relation("BlocksSent")
+  blockedBy              Block[]         @relation("BlocksReceived")
+  stories                Story[]
 }
 
 // This is one to many relationship as - 1 user can have multiple posts
 model Post {
   id        Int       @id @default(autoincrement())
   desc      String
+  img       String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade) // connecting user to the post through the userId . OnDelete:Cascade means on deleting the user the post also should be deleted.
@@ -97,8 +99,17 @@ model Block {
   createdAt DateTime @default(now())
   blocker   User     @relation("BlocksSent", fields: [blockerId], references: [id], onDelete: Cascade)
   blockerId String
-  blocked   User     @relation("BlockReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
   blockedId String
 
   @@unique([blockerId, blockedId]) // because one user cannot send multiple Block request to the same receiver.
+}
+
+model Story {
+  id        Int      @id @default(autoincrement())
+  image     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique //Why @unique :- One to one relationship, as one user can only create one stores , we can change if we want.
 }

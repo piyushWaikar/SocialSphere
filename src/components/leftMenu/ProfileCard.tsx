@@ -1,19 +1,40 @@
+import prisma from "@/lib/client";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const ProfileCard = () => {
+const ProfileCard = async() => {
+  const {userId} = auth(); // fetching current userId from clerk
+  if(!userId) return null;
+  const user = await prisma.user.findFirst({
+    where:{
+      id:userId
+    },
+    //populating other model, with only selected field such as followers with only count .
+    include:{
+      _count:{
+        select:{
+          followers:true
+        }
+      }
+    }
+  });
+  console.log(user);
+
+  if(!user) return null
+  
   return (
     <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-6">
       <div className="h-20 relative">
         <Image
-          src="https://images.pexels.com/photos/20077341/pexels-photo-20077341/free-photo-of-tulips-by-cookie-and-candle-on-bed.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
+          src={user.cover || '/noCover.jpeg'}
           alt=""
           fill
           className="rounded-md object-cover"
         />
         <Image
-          src="https://images.pexels.com/photos/27555585/pexels-photo-27555585/free-photo-of-a-woman-in-a-white-dress-is-standing-by-a-window.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
+          src={user.avatar || '/noAvatar.png'}
           alt=""
           width={48}
           height={48}
@@ -21,7 +42,7 @@ const ProfileCard = () => {
         />
       </div>
       <div className="h-20 flex flex-col gap-2 items-center">
-        <span className="font-semibold">Edward Gabriel</span>
+        <span className="font-semibold">{(user.name && user.surname) ? user.name + " " + user.surname : user.name}</span>
         <div className="flex items-center gap-4">
           <div className="flex gap-1">
             <Image
@@ -46,9 +67,9 @@ const ProfileCard = () => {
               className="object-fit rounded-full w-3 h-3"
             />
           </div>
-          <span className="text-xs text-gray-500">500 Followers</span>
+          <span className="text-xs text-gray-500">{user._count.followers} Followers</span>
         </div>
-        <Link href='/profile/userId'>
+        <Link href={`/profile/${user.username}`}>
         <button className="bg-blue-500 text-white text-xs p-2 rounded-md">
           My Profile
         </button></Link>

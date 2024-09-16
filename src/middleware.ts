@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 //Protecting Routes , if the user is not Authenticated :-
-const isProtected = createRouteMatcher(["/settings(.*)"]);
+const isProtected = createRouteMatcher(["/settings(.*)","/"]);
 export default clerkMiddleware((auth,req)=>{
     if(isProtected(req)) auth().protect(); 
 });
