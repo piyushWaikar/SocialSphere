@@ -62,7 +62,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
                 className="object-cover w-32 h-32 rounded-full absolute left-0 right-0 m-auto -bottom-16 ring-4 ring-white"
               />
             </div>
-            <h1 className="mt-20 mb-4 text-2xl font-medium">{(user.name && user.surname) ? user.name + " " + user.surname : user.name}</h1>
+            <h1 className="mt-20 mb-4 text-2xl font-medium">{(user.name && user.surname) ? user.name + " " + user.surname : user.username}</h1>
             <div className="flex items-center justify-center gap-12 mb-4">
               <div className="flex flex-col items-center">
                 <span className="font-medium">{user._count.posts}</span>
@@ -80,7 +80,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
               </div>
             </div>
           </div>
-          <Feed />
+          <Feed username={user.username} />
         </div>
       </div>
       <div className="hidden lg:block w-[30%]">

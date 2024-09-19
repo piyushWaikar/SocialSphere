@@ -1,9 +1,23 @@
+import prisma from "@/lib/client";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const UserMediaCard = ({ user }: { user: User }) => {
+const UserMediaCard = async ({ user }: { user: User }) => {
+  const postsWithMedia = await prisma.post.findMany({
+    where: {
+      userId: user.id,
+      img: {
+        not: null,
+      },
+    },
+    take: 8,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   return (
     <div className="rounded-lg bg-white shadow-md text-sm p-4 flex flex-col gap-4">
       {/* TOP  */}
@@ -15,16 +29,20 @@ const UserMediaCard = ({ user }: { user: User }) => {
       </div>
       {/* BOTTOM  */}
       <div className="flex gap-4 justify-between flex-wrap">
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/18460532/pexels-photo-18460532/free-photo-of-roofs-of-medieval-buildings-in-town.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
+        {postsWithMedia.length
+          ? postsWithMedia.map((post) => (
+              <div className="relative w-1/5 h-24" key={post.id}>
+                <Image
+                  src={post.img!}
+                  alt=""
+                  fill
+                  className="object-cover rounded-md"
+                />
+              </div>
+            ))
+          : "No media found"}
 
-        <div className="relative w-1/5 h-24">
+        {/* <div className="relative w-1/5 h-24">
           <Image
             src="https://images.pexels.com/photos/20370059/pexels-photo-20370059/free-photo-of-woman-in-a-wedding-dress-posing-in-a-bridal-shop.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
             alt=""
@@ -85,7 +103,7 @@ const UserMediaCard = ({ user }: { user: User }) => {
             fill
             className="object-cover rounded-md"
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
