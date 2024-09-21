@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 export const switchFollow = async (userId: string) => {
   const { userId: currentUserId } = auth();
@@ -241,20 +242,20 @@ export const switchLike = async (postId: number) => {
 };
 
 //Comments :-
-export const addComment = async(postId:number,desc:string)=>{
+export const addComment = async (postId: number, desc: string) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("user is not Authenticated");
   try {
     const createComment = await prisma.comment.create({
-      data:{
+      data: {
         desc,
         userId,
-        postId
+        postId,
       },
-      include:{
-        user:true
-      }
+      include: {
+        user: true,
+      },
     });
 
     return createComment;
@@ -262,4 +263,91 @@ export const addComment = async(postId:number,desc:string)=>{
     console.log(err);
     throw new Error("Something went Wrong !!");
   }
-}
+};
+
+// Add Post
+export const addPost = async (formData: FormData, img: string) => {
+  const { userId } = auth();
+  if (!userId) throw new Error("user is not Authenticated");
+
+  const desc = formData.get("desc") as string;
+  const Desc = z.string().min(1).max(255);
+  const validatedDesc = Desc.safeParse(desc);
+  if (!validatedDesc.success) {
+    // ToDo
+    console.log("Description is not validated");
+    return;
+  }
+
+  try {
+    await prisma.post.create({
+      data: {
+        desc: validatedDesc.data,
+        userId,
+        img,
+      },
+    });
+
+    revalidatePath("/"); // Refreshing page
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went Wrong !!");
+  }
+};
+
+// Add Story
+export const addStory = async (image: string) => {
+  const { userId } = auth();
+  if (!userId) throw new Error("user is not Authenticated");
+
+  try {
+    // We are going to allow single user to post single story only.
+    const exisitingStory = await prisma.story.findFirst({
+      where: {
+        userId,
+      },
+    });
+    if (exisitingStory) {
+      await prisma.story.delete({
+        where: {
+          id: exisitingStory.id,
+        },
+      });
+    }
+
+    const createdStory = await prisma.story.create({
+      data: {
+        userId,
+        image,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return createdStory;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went Wrong !!");
+  }
+};
+
+// Deleting Post
+export const deletePost = async (postId: number) => {
+  const { userId } = auth();
+  if (!userId) throw new Error("user is not Authenticated");
+
+  try {
+    await prisma.post.delete({
+      where: {
+        id: postId,
+        userId,
+      },
+    });
+    revalidatePath("/");
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went Wrong !!");
+  }
+};

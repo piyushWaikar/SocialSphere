@@ -47,8 +47,8 @@ const Feed = async ({ username }: { username?: string }) => {
       }
     });
 
-    const followingIds = followingsLists.map((f) => f.followingId);
-    const ids = [userId,...followingIds]
+    const followingIds = followingsLists.map((f) => f.followingId); // Friends post
+    const ids = [userId,...followingIds] // Friends post with Current user(means our post)
 
     posts = await prisma.post.findMany({
       where: {
