@@ -20,6 +20,13 @@ const StoryList = ({
 }) => {
   const [storyList, setStoryList] = useState(stories);
   const [img, setImg] = useState<any>();
+  const [viewStory, setViewStory] = useState(false);
+
+  const storyTimeOut = ()=>{
+    setTimeout(()=>{
+      setViewStory(false);
+    },2000);
+  };
 
   const { user, isLoaded } = useUser();
 
@@ -51,7 +58,7 @@ const StoryList = ({
     try {
       const createdStory = await addStory(img.secure_url);
       setStoryList((prev) => [createdStory!, ...prev]);
-      setImg(null)
+      setImg(null);
     } catch (err) {}
   };
 
@@ -86,30 +93,60 @@ const StoryList = ({
                   </button>
                 </form>
               ) : (
-                <span className="font-medium" >Add a Story</span>
+                <span className="font-medium">Add a Story</span>
               )}
-              <div className="absolute text-6xl text-gray-200 top-1"onClick={() => open()}>+</div>
+              <div
+                className="absolute text-6xl text-gray-200 top-1"
+                onClick={() => open()}
+              >
+                +
+              </div>
             </div>
           );
         }}
       </CldUploadWidget>
-      {/* STORY */}
+      {/* STORY List Rendering */}
       {optimisticStories.map((story) => (
-        <div
-          className="flex flex-col items-center gap-2 cursor-pointer"
-          key={story.id}
-        >
-          <Image
-            src={story.user.avatar || "/noAvatar.png"}
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">
-            {story.user.name || story.user.username}
-          </span>
-        </div>
+        <>
+          <div
+            className="flex flex-col items-center gap-2 cursor-pointer"
+            key={story.id}
+            onClick={() => {setViewStory((prev) => !prev); storyTimeOut();}}
+          >
+            <Image
+              src={story.user.avatar || "/noAvatar.png"}
+              alt=""
+              width={80}
+              height={80}
+              className="w-20 h-20 rounded-full ring-2"
+            />
+            <span className="font-medium">
+              {story.user.name || story.user.username}
+            </span>
+          </div>
+
+          {viewStory && (
+            <div
+              className="fixed top-0 right-0 h-screen w-screen z-50 bg-black bg-opacity-50 flex items-center justify-center"
+              onClick={() => setViewStory(false)}
+            >
+              <span
+                className="absolute top-4 right-6 text-6xl text-white cursor-pointer"
+                onClick={() => setViewStory(false)}
+              >
+                &times;
+              </span>
+              <div className="w-[80%] h-[80%]">
+                <Image
+                  src={story.image}
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          )}
+        </>
       ))}
     </>
   );
