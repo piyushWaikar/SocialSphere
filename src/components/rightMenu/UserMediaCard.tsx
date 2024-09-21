@@ -3,6 +3,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import PostsRenderer from "./PostsRenderer";
 
 const UserMediaCard = async ({ user }: { user: User }) => {
   const postsWithMedia = await prisma.post.findMany({
@@ -28,7 +29,7 @@ const UserMediaCard = async ({ user }: { user: User }) => {
         </Link>
       </div>
       {/* BOTTOM  */}
-      <div className="flex gap-4 justify-between flex-wrap">
+      {/* <div className="flex gap-4 justify-between flex-wrap">
         {postsWithMedia.length
           ? postsWithMedia.map((post) => (
               <div className="relative w-1/5 h-24" key={post.id}>
@@ -41,69 +42,21 @@ const UserMediaCard = async ({ user }: { user: User }) => {
               </div>
             ))
           : "No media found"}
-
-        {/* <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/20370059/pexels-photo-20370059/free-photo-of-woman-in-a-wedding-dress-posing-in-a-bridal-shop.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/14475824/pexels-photo-14475824.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/27779112/pexels-photo-27779112/free-photo-of-a-white-dog-stands-in-front-of-a-church.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/28164876/pexels-photo-28164876/free-photo-of-a-man-climbing-a-rock-face-with-a-backpack.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/25216810/pexels-photo-25216810/free-photo-of-man-pouring-a-cup-of-turkish-tea.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/28217988/pexels-photo-28217988/free-photo-of-a-snowy-landscape-with-mountains-in-the-background.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div>
-
-        <div className="relative w-1/5 h-24">
-          <Image
-            src="https://images.pexels.com/photos/28347063/pexels-photo-28347063/free-photo-of-a-laptop-and-coffee-cup-on-a-table.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            fill
-            className="object-cover rounded-md"
-          />
-        </div> */}
+      </div> */}
+      <div className="flex gap-4 justify-between flex-wrap">
+        {postsWithMedia.length
+          ? postsWithMedia.map((post) => (
+              // <div className="relative w-1/5 h-24" key={post.id}>
+              //   <Image
+              //     src={post.img!}
+              //     alt=""
+              //     fill
+              //     className="object-cover rounded-md"
+              //   />
+              // </div>
+              <PostsRenderer img={post.img!} id={post.id} />
+            ))
+          : "No media found"}
       </div>
     </div>
   );
